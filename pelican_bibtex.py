@@ -79,6 +79,25 @@ class MyStyle(Style):
         ]
         return template.format_data(entry)
 
+    def format_unpublished(self, entry):
+        template = toplevel[
+            self.format_title(entry, 'title'),
+            sentence[self.format_names('author')],
+            sentence[
+                words[
+                    first_of[
+                        optional_field('type'),
+                        'Unpublished',
+                    ],
+                    optional_field('number'),
+                ],
+                date,
+            ],
+            sentence[optional_field('note')],
+            self.format_web_refs(entry),
+        ]
+        return template.format_data(entry)
+
     def format_techreport(self, entry):
         template = toplevel[
             self.format_title(entry, 'title'),
@@ -155,6 +174,7 @@ def add_publications(generator):
 
     publications = []
     reports = []
+    unpublished = []
     for formatted_entry in formatted_entries:
         key = formatted_entry.key
         entry = bibdata_all.entries[key]
@@ -179,6 +199,8 @@ def add_publications(generator):
 
         if entry.type == 'article':
             publications.append(entry_res)
+        elif entry.type == 'unpublished':
+            unpublished.append(entry_res)
         else:
             reports.append(entry_res)
 
@@ -188,6 +210,9 @@ def add_publications(generator):
     generator.context['reports'] = sorted(reports,
                                           key=itemgetter(-1),
                                           reverse=True)
+    generator.context['unpublished'] = sorted(unpublished,
+                                              key=itemgetter(-1),
+                                              reverse=True)
 
 
 def register():
